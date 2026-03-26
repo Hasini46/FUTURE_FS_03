@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ember & Bean — Artisan Coffee & Kitchen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE0;
+    --espresso: #1C0F05;
+    --amber: #C8681A;
+    --gold: #D4A847;
+    --moss: #3D4A2E;
+    --smoke: #7A6F62;
+    --paper: #EDE6D3;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--espresso);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.5;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.4rem 4rem;
+    background: rgba(245,239,224,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(200,104,26,0.15);
+    transition: all 0.3s;
+  }
+  .nav-logo {
+    font-size: 1.5rem; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--espresso); text-decoration: none;
+  }
+  .nav-logo span { color: var(--amber); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-family: 'DM Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--smoke); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--amber); }
+  .nav-cta {
+    font-family: 'DM Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--espresso); color: var(--cream);
+    padding: 0.65rem 1.5rem; border: none; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--amber); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding-top: 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-left {
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding: 6rem 4rem 6rem 6rem;
+    position: relative; z-index: 2;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .hero-eyebrow::before {
+    content: ''; width: 2.5rem; height: 1px; background: var(--amber);
+  }
+  h1 {
+    font-size: clamp(3.5rem, 6vw, 6rem);
+    font-weight: 300; line-height: 1.05;
+    letter-spacing: -0.02em; margin-bottom: 1.8rem;
+  }
+  h1 em { font-style: italic; color: var(--amber); }
+  .hero-desc {
+    font-size: 1.15rem; line-height: 1.8; color: var(--smoke);
+    max-width: 420px; margin-bottom: 3rem; font-weight: 300;
+  }
+  .hero-btns { display: flex; gap: 1rem; align-items: center; }
+  .btn-primary {
+    background: var(--espresso); color: var(--cream);
+    padding: 1rem 2.2rem; font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    border: none; cursor: pointer; text-decoration: none;
+    display: inline-block; transition: all 0.25s;
+  }
+  .btn-primary:hover { background: var(--amber); transform: translateY(-2px); }
+  .btn-ghost {
+    color: var(--espresso); font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    text-decoration: none; border-bottom: 1px solid var(--espresso);
+    padding-bottom: 2px; transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--amber); border-color: var(--amber); }
+
+  .hero-right {
+    position: relative; overflow: hidden;
+    background: var(--espresso);
+  }
+  .hero-img-wrap {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(135deg, rgba(28,15,5,0.4) 0%, transparent 60%),
+      url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80') center/cover no-repeat;
+  }
+  .hero-badge {
+    position: absolute; bottom: 3rem; left: -1.5rem;
+    background: var(--amber); padding: 1.5rem 2rem;
+    z-index: 3;
+  }
+  .hero-badge p { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--cream); letter-spacing: 0.1em; text-transform: uppercase; }
+  .hero-badge strong { font-family: 'Cormorant Garamond'; font-size: 2rem; color: var(--cream); font-weight: 600; display: block; }
+
+  /* ── MARQUEE ── */
+  .marquee-wrap {
+    background: var(--espresso); overflow: hidden;
+    padding: 1rem 0; border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .marquee-track {
+    display: flex; gap: 3rem; white-space: nowrap;
+    animation: marquee 22s linear infinite;
+  }
+  .marquee-track span {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--smoke);
+    flex-shrink: 0;
+  }
+  .marquee-track span.accent { color: var(--amber); }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── ABOUT ── */
+  #about {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 80vh; position: relative;
+  }
+  .about-img {
+    position: relative; overflow: hidden; min-height: 500px;
+  }
+  .about-img-inner {
+    position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=700&q=80') center/cover;
+  }
+  .about-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to right, transparent 70%, var(--cream));
+  }
+  .about-content {
+    padding: 6rem 5rem 6rem 4rem;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber);
+    margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;
+  }
+  .section-label::before { content: ''; width: 2rem; height: 1px; background: var(--amber); }
+  h2 { font-size: clamp(2.2rem, 4vw, 3.4rem); font-weight: 300; line-height: 1.15; margin-bottom: 1.5rem; }
+  h2 em { font-style: italic; color: var(--amber); }
+  .about-text { font-size: 1.05rem; line-height: 1.9; color: var(--smoke); margin-bottom: 2rem; font-weight: 300; }
+  .stat-row { display: flex; gap: 3rem; margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid rgba(28,15,5,0.1); }
+  .stat big { font-size: 3rem; font-weight: 600; color: var(--espresso); line-height: 1; }
+  .stat big span { color: var(--amber); }
+  .stat small { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--smoke); display: block; margin-top: 0.3rem; }
+
+  /* ── MENU ── */
+  #menu { padding: 8rem 6rem; background: var(--paper); }
+  .menu-header { text-align: center; margin-bottom: 5rem; }
+  .menu-header h2 { margin-bottom: 1rem; }
+  .menu-tabs { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 4rem; }
+  .tab {
+    font-family: 'DM Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 0.6rem 1.8rem; border: 1px solid rgba(28,15,5,0.2);
+    background: none; cursor: pointer; color: var(--smoke);
+    transition: all 0.2s;
+  }
+  .tab.active, .tab:hover { background: var(--espresso); color: var(--cream); border-color: var(--espresso); }
+
+  .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .menu-item {
+    background: var(--cream); padding: 2.5rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s;
+  }
+  .menu-item::before {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 3px; background: var(--amber); transform: scaleX(0);
+    transform-origin: left; transition: transform 0.3s;
+  }
+  .menu-item:hover { transform: translateY(-4px); }
+  .menu-item:hover::before { transform: scaleX(1); }
+  .menu-item-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.7rem; }
+  .item-name { font-size: 1.3rem; font-weight: 600; }
+  .item-price { font-family: 'DM Mono', monospace; font-size: 0.9rem; color: var(--amber); font-weight: 400; }
+  .item-desc { font-size: 0.95rem; color: var(--smoke); line-height: 1.7; font-weight: 300; }
+  .item-tag { display: inline-block; margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; background: var(--moss); color: var(--cream); padding: 0.25rem 0.6rem; }
+
+  /* ── GALLERY ── */
+  #gallery { padding: 0; }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 300px 300px;
+    gap: 3px;
+  }
+  .g-item { overflow: hidden; position: relative; }
+  .g-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; display: block; }
+  .g-item:hover img { transform: scale(1.06); }
+  .g-item.tall { grid-row: span 2; }
+  .g-overlay {
+    position: absolute; inset: 0; background: rgba(28,15,5,0);
+    display: flex; align-items: flex-end; padding: 2rem;
+    transition: background 0.3s;
+  }
+  .g-item:hover .g-overlay { background: rgba(28,15,5,0.35); }
+  .g-label {
+    font-family: 'DM Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--cream);
+    opacity: 0; transform: translateY(10px); transition: all 0.3s;
+  }
+  .g-item:hover .g-label { opacity: 1; transform: translateY(0); }
+
+  /* ── TESTIMONIALS ── */
+  #testimonials { padding: 8rem 6rem; background: var(--espresso); }
+  .testi-header { text-align: center; margin-bottom: 5rem; }
+  .testi-header .section-label { justify-content: center; }
+  .testi-header .section-label::before { display: none; }
+  .testi-header h2 { color: var(--cream); }
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+  .testi-card { background: rgba(255,255,255,0.05); padding: 2.5rem; border: 1px solid rgba(255,255,255,0.06); }
+  .stars { color: var(--gold); font-size: 0.8rem; letter-spacing: 0.1em; margin-bottom: 1.2rem; }
+  .testi-quote { font-size: 1.05rem; line-height: 1.8; color: rgba(245,239,224,0.8); font-weight: 300; font-style: italic; margin-bottom: 1.5rem; }
+  .testi-author { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); }
+
+  /* ── HOURS & CONTACT ── */
+  #contact {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 70vh;
+  }
+  .contact-map {
+    background: var(--moss);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 400px;
+  }
+  .map-placeholder {
+    text-align: center; color: rgba(245,239,224,0.5);
+  }
+  .map-placeholder svg { width: 80px; opacity: 0.3; margin-bottom: 1rem; }
+  .map-placeholder p { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; }
+  .address-pin {
+    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    background: var(--amber); padding: 1rem 2rem; text-align: center;
+  }
+  .address-pin p { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: var(--cream); text-transform: uppercase; }
+  .contact-info { padding: 6rem 5rem; display: flex; flex-direction: column; justify-content: center; }
+  .hours-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 2rem 0; }
+  .hour-row {
+    display: flex; justify-content: space-between;
+    padding: 0.6rem 0; border-bottom: 1px solid rgba(28,15,5,0.08);
+    font-size: 0.95rem; color: var(--smoke);
+  }
+  .hour-row strong { color: var(--espresso); font-weight: 600; }
+  .contact-details { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 0.8rem; }
+  .contact-row { display: flex; gap: 1rem; align-items: center; font-size: 0.95rem; color: var(--smoke); }
+  .contact-row .icon { font-size: 1rem; width: 1.5rem; text-align: center; }
+
+  /* ── RESERVATION ── */
+  #reserve { padding: 8rem 6rem; background: var(--cream); text-align: center; }
+  #reserve h2 { font-size: clamp(2.5rem, 5vw, 4.5rem); margin-bottom: 1rem; font-weight: 300; }
+  #reserve p { font-size: 1.1rem; color: var(--smoke); margin-bottom: 3rem; font-weight: 300; }
+  .reserve-form {
+    display: flex; gap: 1rem; max-width: 700px; margin: 0 auto;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .reserve-form input {
+    flex: 1; min-width: 180px; padding: 1rem 1.2rem;
+    border: 1px solid rgba(28,15,5,0.2); background: var(--paper);
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+    color: var(--espresso); outline: none;
+    transition: border-color 0.2s;
+  }
+  .reserve-form input:focus { border-color: var(--amber); }
+  .reserve-form input::placeholder { color: var(--smoke); }
+  .reserve-form button {
+    background: var(--amber); color: var(--cream); border: none;
+    padding: 1rem 2.5rem; font-family: 'DM Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .reserve-form button:hover { background: var(--espresso); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--espresso); padding: 4rem 6rem 2rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 4rem; margin-bottom: 3rem;
+  }
+  .footer-brand .brand { font-size: 1.8rem; font-weight: 600; color: var(--cream); margin-bottom: 0.8rem; }
+  .footer-brand .brand span { color: var(--amber); }
+  .footer-brand p { font-size: 0.9rem; color: rgba(245,239,224,0.4); line-height: 1.7; font-weight: 300; }
+  .footer-col h4 { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--amber); margin-bottom: 1.2rem; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-col ul li a { font-size: 0.9rem; color: rgba(245,239,224,0.5); text-decoration: none; transition: color 0.2s; font-weight: 300; }
+  .footer-col ul li a:hover { color: var(--cream); }
+  .footer-bottom { padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; }
+  .footer-bottom p { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; color: rgba(245,239,224,0.3); text-transform: uppercase; }
+  .social-links { display: flex; gap: 1rem; }
+  .social-links a { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,239,224,0.4); text-decoration: none; border: 1px solid rgba(255,255,255,0.1); padding: 0.4rem 0.8rem; transition: all 0.2s; }
+  .social-links a:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+  .fade-up:nth-child(2) { transition-delay: 0.1s; }
+  .fade-up:nth-child(3) { transition-delay: 0.2s; }
+
+  /* ── HAMBURGER (mobile) ── */
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
+  .hamburger span { width: 24px; height: 1.5px; background: var(--espresso); transition: all 0.3s; display: block; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    #hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 4rem 1.5rem; }
+    .hero-right { min-height: 320px; }
+    #about { grid-template-columns: 1fr; }
+    .about-img { min-height: 300px; }
+    .about-content { padding: 3rem 1.5rem; }
+    .menu-grid { grid-template-columns: 1fr; }
+    #menu { padding: 5rem 1.5rem; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .g-item.tall { grid-row: span 1; }
+    .testi-grid { grid-template-columns: 1fr; }
+    #testimonials { padding: 5rem 1.5rem; }
+    #contact { grid-template-columns: 1fr; }
+    .contact-info { padding: 3rem 1.5rem; }
+    .hours-grid { grid-template-columns: 1fr; }
+    #reserve { padding: 5rem 1.5rem; }
+    .reserve-form { flex-direction: column; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    footer { padding: 3rem 1.5rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Ember<span>&</span>Bean</a>
+  <ul class="nav-links">
+    <li><a href="#about">Our Story</a></li>
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#contact">Find Us</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('reserve').scrollIntoView({behavior:'smooth'})">Reserve a Table</button>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Est. 2019 · Artisan Coffee</p>
+    <h1>Where Every<br><em>Sip Tells</em><br>a Story.</h1>
+    <p class="hero-desc">Slow-roasted single-origins, house-baked pastries, and a kitchen that celebrates the seasons — all under one roof in the heart of downtown.</p>
+    <div class="hero-btns">
+      <a href="#menu" class="btn-primary">Explore Menu</a>
+      <a href="#reserve" class="btn-ghost">Book a Table</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-wrap"></div>
+    <div class="hero-badge">
+      <p>Rated</p>
+      <strong>4.9 ★</strong>
+      <p>on Google</p>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>Single Origin Espresso</span><span class="accent">✦</span>
+    <span>House-Baked Croissants</span><span class="accent">✦</span>
+    <span>Seasonal Brunch Menu</span><span class="accent">✦</span>
+    <span>Cold Brew on Tap</span><span class="accent">✦</span>
+    <span>Vegan &amp; Gluten-Free Options</span><span class="accent">✦</span>
+    <span>Dog-Friendly Patio</span><span class="accent">✦</span>
+    <span>Free WiFi</span><span class="accent">✦</span>
+    <span>Single Origin Espresso</span><span class="accent">✦</span>
+    <span>House-Baked Croissants</span><span class="accent">✦</span>
+    <span>Seasonal Brunch Menu</span><span class="accent">✦</span>
+    <span>Cold Brew on Tap</span><span class="accent">✦</span>
+    <span>Vegan &amp; Gluten-Free Options</span><span class="accent">✦</span>
+    <span>Dog-Friendly Patio</span><span class="accent">✦</span>
+    <span>Free WiFi</span><span class="accent">✦</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-img">
+    <div class="about-img-inner"></div>
+  </div>
+  <div class="about-content">
+    <p class="section-label fade-up">Our Story</p>
+    <h2 class="fade-up">More Than Coffee.<br>A <em>Community</em> Cup.</h2>
+    <p class="about-text fade-up">Ember & Bean began when two friends, Maya and Raj, decided that their neighbourhood deserved a place that felt like home — warm, unhurried, and genuinely good. We source our beans directly from farms in Coorg, Araku, and Nilgiris, and every recipe on our menu was tested at Maya's kitchen table.</p>
+    <p class="about-text fade-up">Five years later, we're still that same kitchen-table café — just a little bigger, a little louder, and loved by thousands of regulars who know us by name.</p>
+    <div class="stat-row">
+      <div class="stat fade-up"><big>5<span>K+</span></big><small>Happy Customers</small></div>
+      <div class="stat fade-up"><big>12<span>+</span></big><small>Menu Items</small></div>
+      <div class="stat fade-up"><big>4.9<span>★</span></big><small>Avg. Rating</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="menu-header">
+    <p class="section-label" style="justify-content:center;"><span style="width:2rem;height:1px;background:var(--amber);display:inline-block;margin-right:1rem;"></span>What We Serve</p>
+    <h2>Our <em>Signature</em> Menu</h2>
+  </div>
+  <div class="menu-tabs">
+    <button class="tab active" onclick="filterMenu('all',this)">All</button>
+    <button class="tab" onclick="filterMenu('coffee',this)">Coffee</button>
+    <button class="tab" onclick="filterMenu('food',this)">Food</button>
+    <button class="tab" onclick="filterMenu('cold',this)">Cold</button>
+  </div>
+  <div class="menu-grid" id="menuGrid">
+
+    <div class="menu-item fade-up" data-cat="coffee">
+      <div class="menu-item-top">
+        <span class="item-name">Signature Flat White</span>
+        <span class="item-price">₹180</span>
+      </div>
+      <p class="item-desc">Double ristretto, micro-foamed whole milk, delicate latte art — our most-ordered coffee.</p>
+      <span class="item-tag">Bestseller</span>
+    </div>
+
+    <div class="menu-item fade-up" data-cat="food">
+      <div class="menu-item-top">
+        <span class="item-name">Truffle Scramble Toast</span>
+        <span class="item-price">₹320</span>
+      </div>
+      <p class="item-desc">Slow-scrambled eggs with black truffle oil, chives, and sourdough from our in-house bakery.</p>
+      <span class="item-tag">Chef's Pick</span>
+    </div>
+
+    <div class="menu-item fade-up" data-cat="cold">
+      <div class="menu-item-top">
+        <span class="item-name">Brown Sugar Cold Brew</span>
+        <span class="item-price">₹240</span>
+      </div>
+      <p class="item-desc">20-hour cold-steeped Araku beans, brown sugar syrup, poured over large clear ice.</p>
+      <span class="item-tag">New</span>
+    </div>
+
+    <div class="menu-item fade-up" data-cat="food">
+      <div class="menu-item-top">
+        <span class="item-name">Almond Croissant</span>
+        <span class="item-price">₹160</span>
+      </div>
+      <p class="item-desc">Laminated butter croissant filled with frangipane, twice-baked to golden perfection.</p>
+    </div>
+
+    <div class="menu-item fade-up" data-cat="coffee">
+      <div class="menu-item-top">
+        <span class="item-name">Spiced Cardamom Latte</span>
+        <span class="item-price">₹200</span>
+      </div>
+      <p class="item-desc">Espresso, steamed oat milk, house-ground cardamom and cinnamon. A nod to South Indian filter kaapi.</p>
+      <span class="item-tag">Local Favourite</span>
+    </div>
+
+    <div class="menu-item fade-up" data-cat="cold">
+      <div class="menu-item-top">
+        <span class="item-name">Mango Iced Matcha</span>
+        <span class="item-price">₹220</span>
+      </div>
+      <p class="item-desc">Ceremonial-grade matcha, fresh Alphonso mango purée, oat milk. Seasonal and limited.</p>
+      <span class="item-tag">Seasonal</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="gallery-grid">
+    <div class="g-item tall">
+      <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=700&q=80" alt="Café interior">
+      <div class="g-overlay"><span class="g-label">Our Space</span></div>
+    </div>
+    <div class="g-item">
+      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&q=80" alt="Latte art">
+      <div class="g-overlay"><span class="g-label">Latte Art</span></div>
+    </div>
+    <div class="g-item">
+      <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=500&q=80" alt="Food">
+      <div class="g-overlay"><span class="g-label">Kitchen</span></div>
+    </div>
+    <div class="g-item">
+      <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=500&q=80" alt="Beans">
+      <div class="g-overlay"><span class="g-label">Our Beans</span></div>
+    </div>
+    <div class="g-item">
+      <img src="https://images.unsplash.com/photo-1560472355-536de3962603?w=500&q=80" alt="Pastries">
+      <div class="g-overlay"><span class="g-label">Pastries</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testi-header">
+    <p class="section-label">What Regulars Say</p>
+    <h2>Loved by the <em>Neighbourhood</em></h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card fade-up">
+      <div class="stars">★★★★★</div>
+      <p class="testi-quote">"The flat white here ruined every other café for me. The staff remembers my order. I come four times a week and I'm not ashamed."</p>
+      <span class="testi-author">— Priya M., Regular since 2021</span>
+    </div>
+    <div class="testi-card fade-up">
+      <div class="stars">★★★★★</div>
+      <p class="testi-quote">"I had my first business meeting here and it went so well I've been coming back for every important conversation since. The ambience does something to you."</p>
+      <span class="testi-author">— Arjun K., Entrepreneur</span>
+    </div>
+    <div class="testi-card fade-up">
+      <div class="stars">★★★★★</div>
+      <p class="testi-quote">"Best croissant outside of Paris, and I've been to Paris. The truffle scramble toast is the only reason I wake up on weekends."</p>
+      <span class="testi-author">— Lalitha R., Food Blogger</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOURS & CONTACT -->
+<section id="contact">
+  <div class="contact-map">
+    <div class="map-placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg" style="color:var(--cream)">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
+      </svg>
+      <p>Embed Google Maps here</p>
+    </div>
+    <div class="address-pin">
+      <p>📍 14, Brigade Road, Bangalore</p>
+    </div>
+  </div>
+  <div class="contact-info">
+    <p class="section-label">Visit Us</p>
+    <h2>Hours &amp; <em>Location</em></h2>
+    <div class="hours-grid">
+      <div>
+        <div class="hour-row"><strong>Mon – Fri</strong><span>7:00 AM – 9:00 PM</span></div>
+        <div class="hour-row"><strong>Saturday</strong><span>8:00 AM – 10:00 PM</span></div>
+        <div class="hour-row"><strong>Sunday</strong><span>9:00 AM – 8:00 PM</span></div>
+      </div>
+      <div>
+        <div class="hour-row"><strong>Kitchen closes</strong><span>8:30 PM</span></div>
+        <div class="hour-row"><strong>Last order</strong><span>30 min before</span></div>
+        <div class="hour-row" style="color:var(--amber)"><strong>Status</strong><span>Open Now ●</span></div>
+      </div>
+    </div>
+    <div class="contact-details">
+      <div class="contact-row"><span class="icon">📞</span><span>+91 98765 43210</span></div>
+      <div class="contact-row"><span class="icon">✉️</span><span>hello@emberandbean.in</span></div>
+      <div class="contact-row"><span class="icon">📍</span><span>14, Brigade Road, MG Road Metro, Bengaluru 560001</span></div>
+      <div class="contact-row"><span class="icon">🅿️</span><span>Free parking · Accessible · Pet friendly patio</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESERVATION -->
+<section id="reserve">
+  <p class="section-label" style="justify-content:center; margin-bottom:1rem;"><span style="width:2rem;height:1px;background:var(--amber);display:inline-block;margin-right:1rem;"></span>Reservations</p>
+  <h2>Reserve Your <em>Table</em></h2>
+  <p>We hold tables for up to 20 minutes. Walk-ins always welcome.</p>
+  <form class="reserve-form" onsubmit="handleReserve(event)">
+    <input type="text" placeholder="Your Name" required>
+    <input type="tel" placeholder="Phone Number" required>
+    <input type="date" required>
+    <input type="number" placeholder="Guests" min="1" max="12" required>
+    <button type="submit">Book Now</button>
+  </form>
+  <p id="reserve-msg" style="margin-top:1.5rem;font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--amber);letter-spacing:0.1em;display:none;">
+    ✓ Booking received! We'll confirm via SMS shortly.
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="brand">Ember<span>&</span>Bean</div>
+      <p>Artisan coffee and a kitchen that celebrates the seasons. Come for the coffee, stay for the feeling.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="#about">Our Story</a></li>
+        <li><a href="#menu">Menu</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Visit</h4>
+      <ul>
+        <li><a href="#contact">Find Us</a></li>
+        <li><a href="#reserve">Reservations</a></li>
+        <li><a href="#">Private Events</a></li>
+        <li><a href="#">Gift Cards</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Facebook</a></li>
+        <li><a href="#">Zomato</a></li>
+        <li><a href="#">Google Maps</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Ember & Bean · All rights reserved</p>
+    <div class="social-links">
+      <a href="#">IG</a>
+      <a href="#">FB</a>
+      <a href="#">ZO</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Nav scroll effect
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    nav.style.boxShadow = window.scrollY > 60 ? '0 2px 20px rgba(28,15,5,0.08)' : 'none';
+  });
+
+  // Menu filter
+  function filterMenu(cat, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.menu-item').forEach(item => {
+      const match = cat === 'all' || item.dataset.cat === cat;
+      item.style.display = match ? 'block' : 'none';
+      item.style.opacity = match ? '1' : '0';
+    });
+  }
+
+  // Reservation
+  function handleReserve(e) {
+    e.preventDefault();
+    const msg = document.getElementById('reserve-msg');
+    msg.style.display = 'block';
+    e.target.reset();
+    setTimeout(() => msg.style.display = 'none', 5000);
+  }
+
+  // Mobile menu toggle
+  function toggleMenu() {
+    const links = document.querySelector('.nav-links');
+    if (links.style.display === 'flex') {
+      links.style.display = 'none';
+    } else {
+      links.style.cssText = 'display:flex;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:rgba(245,239,224,0.97);padding:2rem;gap:1.5rem;backdrop-filter:blur(10px);';
+    }
+  }
+</script>
+</body>
+</html>
